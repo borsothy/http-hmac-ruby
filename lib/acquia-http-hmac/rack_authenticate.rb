@@ -33,6 +33,11 @@ module Acquia
         # Pass the id & data to later stages
         env['ACQUIA-HTTP-HMAC-ID'] = attributes[:id]
         env['ACQUIA-HTTP-HMAC-DATA'] = @password_storage.data(attributes[:id])
+
+        # Remove cache-control header so other middlewares can apply
+        # transformations after authentication.
+        env.delete('CACHE_CONTROL')
+
         (status, headers, resp_body) = @app.call(env)
         sign_response(status, headers, resp_body, args[:nonce], args[:timestamp], mac)
       end
@@ -191,4 +196,3 @@ module Acquia
     end
   end
 end
-
